@@ -4,6 +4,7 @@ import connectDB from './database/db.js';
 import userRoute from './routes/userRoute.js'
 import productRoutes from './routes/productRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
+import inquiryRoutes from './routes/inquiryRoutes.js'
 import cors from 'cors'
 
 const app = express()
@@ -18,6 +19,7 @@ app.use(cors({
 app.use('/api/v1/user', userRoute)
 app.use('/api/v1/product', productRoutes)
 app.use('/api/v1/order', orderRoutes)
+app.use('/api/v1/inquiry', inquiryRoutes)
 
 app.get('/api/v1/healthcheck', (req, res) => {
     res.json({ success: true, message: 'Server is healthy and routes are loaded' });

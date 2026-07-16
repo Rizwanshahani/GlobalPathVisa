@@ -56,8 +56,8 @@ const submitHandler= async(e)=>{
 }
 
   return (
-    <div className='flex justify-center items-center min-h-screen bg-red-100'>
-    <Card className="w-full max-w-sm">
+    <div className='flex justify-center items-center min-h-screen bg-slate-50 pt-28 pb-16 px-4'>
+    <Card className="w-full max-w-sm border border-slate-100 shadow-xl rounded-3xl overflow-hidden bg-white">
       <CardHeader>
         <CardTitle>Create your account</CardTitle>
         <CardDescription>

@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const FAQ = () => {
+  useEffect(() => {
+    document.title = "FAQs | Travel Visa Requirements & Support - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Find answers to frequently asked questions about Schengen, UK, US, and Canada visa processing times, required documents, and biometrics booking.");
+    }
+  }, []);
+
   const faqData = [
     {
       q: "Is GlobalPath Visa an official embassy or visa center?",

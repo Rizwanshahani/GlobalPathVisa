@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Compass, ShieldCheck, CheckCircle, ArrowRight, UserCheck, Star, Users, Award, X, Send, Phone, User, Mail } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 const countriesList = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -71,7 +72,7 @@ const Home = () => {
   };
 
   // Submit Inquiry (from Hero or Modal)
-  const handleInquirySubmit = (e) => {
+  const handleInquirySubmit = async (e) => {
     e.preventDefault();
     if (!inquiryData.name || !inquiryData.email || !inquiryData.phone) {
       toast.error("Please fill out all fields.");
@@ -79,14 +80,21 @@ const Home = () => {
     }
 
     const generatedId = "GP-" + Math.floor(100000 + Math.random() * 900000);
-    const newInquiry = {
+    const mockTravelDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const inquiryPayload = {
       trackingId: generatedId,
-      destination: inquiryData.destination,
-      visaType: inquiryData.visaType,
       fullName: inquiryData.name,
       email: inquiryData.email,
       phone: inquiryData.phone,
-      travelDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Mock travel date 30 days out
+      destination: inquiryData.destination,
+      visaType: inquiryData.visaType,
+      travelDate: mockTravelDate
+    };
+
+    // Save to LocalStorage for offline fallback tracking
+    const newInquiryLocal = {
+      ...inquiryPayload,
       appointmentDate: "Pending Scheduling",
       appointmentTime: "",
       status: "Submitted",
@@ -100,10 +108,15 @@ const Home = () => {
       ]
     };
 
-    // Save to LocalStorage for tracking lookup
     const existingApps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
-    existingApps.push(newInquiry);
+    existingApps.push(newInquiryLocal);
     localStorage.setItem("globalpath_visas", JSON.stringify(existingApps));
+
+    try {
+      await axios.post("http://localhost:8000/api/v1/inquiry/create", inquiryPayload);
+    } catch (err) {
+      console.error("Failed to save inquiry to MongoDB:", err);
+    }
 
     setInquirySuccess(generatedId);
     setShowPopup(false);

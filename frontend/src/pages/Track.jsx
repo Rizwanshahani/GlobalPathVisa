@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Loader2, CheckCircle2, Clock, Landmark, Compass, ShieldAlert, Mail, Phone, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 // Default Sample Application
 const sampleApplication = {
@@ -29,37 +30,53 @@ const Track = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryId = searchParams.get("id") || "";
 
+  useEffect(() => {
+    document.title = "Track Application | Live Visa File Tracking - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Track your live travel visa file status online. Monitor document audits, VFS biometrics booking details, and embassy processing updates in real-time.");
+    }
+  }, []);
+
   const [inputVal, setInputVal] = useState(queryId);
   const [loading, setLoading] = useState(false);
   const [appDetails, setAppDetails] = useState(null);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = (id) => {
+  const handleSearch = async (id) => {
     if (!id.trim()) return;
     setLoading(true);
     setSearched(true);
 
-    // Simulate database lookup
-    setTimeout(() => {
-      // 1. Check for sample ID
-      if (id.trim().toUpperCase() === "GP-SAMPLE123") {
-        setAppDetails(sampleApplication);
+    // 1. Check for sample ID
+    if (id.trim().toUpperCase() === "GP-SAMPLE123") {
+      setAppDetails(sampleApplication);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await axios.get(`http://localhost:8000/api/v1/inquiry/track/${id.trim()}`);
+      if (res.data.success) {
+        setAppDetails(res.data.inquiry);
         setLoading(false);
         return;
       }
+    } catch (err) {
+      console.log("Not found in database, checking localStorage...", err);
+    }
 
-      // 2. Check localStorage
-      const localApps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
-      const found = localApps.find(app => app.trackingId.toUpperCase() === id.trim().toUpperCase());
+    // 2. Check localStorage
+    const localApps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
+    const found = localApps.find(app => app.trackingId.toUpperCase() === id.trim().toUpperCase());
 
-      if (found) {
-        setAppDetails(found);
-      } else {
-        setAppDetails(null);
-        toast.error("Application ID not found");
-      }
-      setLoading(false);
-    }, 1200);
+    if (found) {
+      setAppDetails(found);
+    } else {
+      setAppDetails(null);
+      toast.error("Application ID not found");
+    }
+    setLoading(false);
   };
 
   // Trigger search when queryId changes

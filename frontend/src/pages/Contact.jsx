@@ -1,8 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Mail, Phone, MapPin, Send, ShieldCheck, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 const Contact = () => {
+  useEffect(() => {
+    document.title = "Contact Us | Get Free Visa Consultation - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Get in touch with GlobalPath Visa experts. Call, email, or fill out our online form to request a free visa assessment and document audit consultation.");
+    }
+  }, []);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",

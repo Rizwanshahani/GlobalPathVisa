@@ -1,11 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Check, ArrowRight, ArrowLeft, Calendar, FileText, User, Plane, HelpCircle, CheckCircle, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
 
 const Apply = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = "Apply Now | Visa Application & Assessment - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Submit a Schengen, UK, US, or Canada visa assessment request. Book a biometrics consultation slots and get audited documents package.");
+    }
+  }, []);
 
   // Query Params pre-population
   const initDest = searchParams.get("destination") || "";
@@ -122,7 +131,7 @@ const Apply = () => {
   };
 
   // Submit assessment and generate tracking ID
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.agreeToTerms) {
       toast.error("You must agree to the terms to submit your application.");
@@ -131,42 +140,76 @@ const Apply = () => {
 
     setIsSubmitting(true);
 
-    // Simulate server request
-    setTimeout(() => {
-      const generatedId = "GP-" + Math.floor(100000 + Math.random() * 900000);
-      
-      // Save application to localStorage for mock tracking
-      const newApp = {
-        trackingId: generatedId,
-        destination: formData.destination,
-        visaType: formData.visaType,
-        fullName: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        phone: formData.phone,
-        travelDate: formData.travelDate,
-        appointmentDate: formData.appointmentDate,
-        appointmentTime: formData.appointmentTime,
-        status: "Submitted", // initial status
-        updatedAt: new Date().toLocaleDateString(),
-        timeline: [
+    const generatedId = "GP-" + Math.floor(100000 + Math.random() * 900000);
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+
+    const inquiryPayload = {
+      trackingId: generatedId,
+      fullName: fullName,
+      email: formData.email,
+      phone: formData.phone,
+      destination: formData.destination,
+      visaType: formData.visaType,
+      travelDate: formData.travelDate
+    };
+
+    // Save to LocalStorage for fallback tracking
+    const newAppLocal = {
+      ...inquiryPayload,
+      appointmentDate: formData.appointmentDate,
+      appointmentTime: formData.appointmentTime,
+      status: "Submitted",
+      updatedAt: new Date().toLocaleDateString(),
+      timeline: [
+        { status: "Submitted", description: "Application submitted online", date: new Date().toLocaleDateString(), completed: true },
+        { status: "Document Audit", description: "Visa specialist auditing documents", date: "Pending", completed: false },
+        { status: "Appointment Booking", description: "Securing slot at Embassy/VFS", date: "Pending", completed: false },
+        { status: "Embassy Submission", description: "Visa file submitted for processing", date: "Pending", completed: false },
+        { status: "Passport Dispatched", description: "Decision made and passport in transit", date: "Pending", completed: false }
+      ]
+    };
+
+    const existingApps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
+    existingApps.push(newAppLocal);
+    localStorage.setItem("globalpath_visas", JSON.stringify(existingApps));
+
+    try {
+      const res = await axios.post("http://localhost:8000/api/v1/inquiry/create", inquiryPayload);
+      if (res.data.success && formData.appointmentDate) {
+        const inqId = res.data.inquiry._id;
+        const timeline = [
           { status: "Submitted", description: "Application submitted online", date: new Date().toLocaleDateString(), completed: true },
           { status: "Document Audit", description: "Visa specialist auditing documents", date: "Pending", completed: false },
-          { status: "Appointment Booking", description: "Securing slot at Embassy/VFS", date: "Pending", completed: false },
+          { status: "Appointment Booking", description: "Biometrics consultation slot secured.", date: new Date().toLocaleDateString(), completed: true },
           { status: "Embassy Submission", description: "Visa file submitted for processing", date: "Pending", completed: false },
           { status: "Passport Dispatched", description: "Decision made and passport in transit", date: "Pending", completed: false }
-        ]
-      };
+        ];
+        
+        await axios.put(`http://localhost:8000/api/v1/inquiry/update/${inqId}`, {
+          appointmentDate: formData.appointmentDate,
+          appointmentTime: formData.appointmentTime,
+          status: "Appointment Booking",
+          timeline
+        });
 
-      // Retrieve existing, add new, and store back
-      const existingApps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
-      existingApps.push(newApp);
-      localStorage.setItem("globalpath_visas", JSON.stringify(existingApps));
+        // Update local storage too to reflect the updated status
+        newAppLocal.status = "Appointment Booking";
+        newAppLocal.timeline = timeline;
+        const apps = JSON.parse(localStorage.getItem("globalpath_visas") || "[]");
+        const idx = apps.findIndex(a => a.trackingId === generatedId);
+        if (idx !== -1) {
+          apps[idx] = newAppLocal;
+          localStorage.setItem("globalpath_visas", JSON.stringify(apps));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to save application to MongoDB:", err);
+    }
 
-      setTrackingId(generatedId);
-      setIsSubmitting(false);
-      setCurrentStep(6); // Success page step
-      toast.success("Application submitted successfully!");
-    }, 2000);
+    setTrackingId(generatedId);
+    setIsSubmitting(false);
+    setCurrentStep(6); // Success page step
+    toast.success("Application submitted successfully!");
   };
 
   return (

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { 
   Shield, Clock, FileText, CheckCircle, ArrowRight, Compass, Landmark, Plane, UserCheck, Search,
@@ -141,6 +141,14 @@ const servicesList = [
 ];
 
 const Services = () => {
+  useEffect(() => {
+    document.title = "Our Services | Visa, Immigration & Document Audits - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Explore our full range of 32 specialized visa, immigration, documentation, and consulting services. We handle Schengen, UK, US, and Canada visa audits.");
+    }
+  }, []);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 

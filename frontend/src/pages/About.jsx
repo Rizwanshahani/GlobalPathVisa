@@ -1,6 +1,15 @@
+import { useEffect } from "react";
 import { Shield, Compass, ShieldCheck } from "lucide-react";
 
 const About = () => {
+  useEffect(() => {
+    document.title = "About Us | Leading Travel Visa Experts - GlobalPath";
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Meet GlobalPath's expert visa consultants. We guide travelers through complex embassy regulations, auditing bank statements and drafting cover letters.");
+    }
+  }, []);
+
   const values = [
     { title: "Precision Auditing", text: "Every bank statement, tax slip, and employment certificate is reviewed line-by-line to prevent visa refusal.", icon: <ShieldCheck className="text-indigo-600" size={24} />, bg: "bg-indigo-50" },
     { title: "Client Security", text: "Your passports and financial drafts are kept under military-grade encryption and treated with absolute confidentiality.", icon: <Shield className="text-indigo-600" size={24} />, bg: "bg-indigo-50" },
