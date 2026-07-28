@@ -8,9 +8,6 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import FAQ from './pages/FAQ'
 import Footer from './components/footer'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import AdminDashboard from './pages/AdminDashboard'
 
 const router = createBrowserRouter([
   {
@@ -40,18 +37,6 @@ const router = createBrowserRouter([
   {
     path: '/contact',
     element: <><Navbar /><Contact /><Footer /></>
-  },
-  {
-    path: '/login',
-    element: <><Navbar /><Login /><Footer /></>
-  },
-  {
-    path: '/signup',
-    element: <><Navbar /><Signup /><Footer /></>
-  },
-  {
-    path: '/admin',
-    element: <><Navbar /><AdminDashboard /><Footer /></>
   }
 ])
 

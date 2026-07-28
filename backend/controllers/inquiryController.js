@@ -97,9 +97,14 @@ export const updateInquiryStatus = async (req, res) => {
     }
 };
 
-// 5. Export inquiries to CSV (Excel format)
+// 5. Export daily inquiries to CSV (Excel format)
 export const exportInquiriesCSV = async (req, res) => {
     try {
+        const { key } = req.query;
+        if (key !== "GPAdminExcelSecret") {
+            return res.status(401).send("Unauthorized: Invalid Secret Key");
+        }
+
         // Find inquiries created today
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
@@ -107,7 +112,6 @@ export const exportInquiriesCSV = async (req, res) => {
         const endOfDay = new Date();
         endOfDay.setHours(23, 59, 59, 999);
 
-        // Fetch inquiries (can support filtering by date, default is all/daily)
         const inquiries = await Inquiry.find({
             createdAt: { $gte: startOfDay, $lte: endOfDay }
         }).sort({ createdAt: -1 });
@@ -135,10 +139,51 @@ export const exportInquiriesCSV = async (req, res) => {
         });
 
         res.setHeader("Content-Type", "text/csv; charset=utf-8");
-        res.setHeader("Content-Disposition", `attachment; filename=inquiries_${new Date().toISOString().split('T')[0]}.csv`);
+        res.setHeader("Content-Disposition", `attachment; filename=daily_inquiries_${new Date().toISOString().split('T')[0]}.csv`);
         return res.status(200).send(csvContent);
     } catch (error) {
-        console.error("Export inquiries error:", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
+        console.error("Export daily inquiries error:", error);
+        return res.status(550).send("Internal server error");
+    }
+};
+
+// 6. Export all inquiries to CSV (Excel format)
+export const exportAllInquiriesCSV = async (req, res) => {
+    try {
+        const { key } = req.query;
+        if (key !== "GPAdminExcelSecret") {
+            return res.status(401).send("Unauthorized: Invalid Secret Key");
+        }
+
+        const inquiries = await Inquiry.find().sort({ createdAt: -1 });
+
+        // Generate CSV content
+        let csvContent = "\uFEFF"; // Byte Order Mark for Excel UTF-8 support
+        csvContent += "Tracking ID,Full Name,Email,Phone,Destination,Visa Type,Travel Date,Appointment Date,Appointment Time,Status,Created At\n";
+
+        inquiries.forEach(inq => {
+            const row = [
+                inq.trackingId,
+                inq.fullName,
+                inq.email,
+                inq.phone,
+                inq.destination,
+                inq.visaType,
+                inq.travelDate || "",
+                inq.appointmentDate || "",
+                inq.appointmentTime || "",
+                inq.status,
+                inq.createdAt ? inq.createdAt.toLocaleString() : ""
+            ].map(val => `"${String(val).replace(/"/g, '""')}"`);
+
+            csvContent += row.join(",") + "\n";
+        });
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename=all_inquiries_${new Date().toISOString().split('T')[0]}.csv`);
+        return res.status(200).send(csvContent);
+    } catch (error) {
+        console.error("Export all inquiries error:", error);
+        return res.status(550).send("Internal server error");
     }
 };

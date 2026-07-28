@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, ArrowRight } from "lucide-react";
-import { useSelector, useDispatch } from "react-redux";
-import { setUser } from "@/redux/UserSlice";
-import { toast } from "sonner";
 
 const Navbar = () => {
   const location = useLocation();
@@ -22,9 +19,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const { user } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Visa Services", path: "/services" },
@@ -33,17 +27,6 @@ const Navbar = () => {
     { name: "FAQs", path: "/faq" },
     { name: "Contact Us", path: "/contact" },
   ];
-
-  const adminLinks = [...navLinks];
-  if (user && user.role === "admin") {
-    adminLinks.push({ name: "Admin Portal", path: "/admin" });
-  }
-
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    dispatch(setUser(null));
-    toast.success("Logged out successfully");
-  };
 
   return (
     <header
@@ -67,7 +50,7 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex gap-8 items-center">
           <ul className="flex gap-6 items-center text-sm font-semibold text-slate-300">
-            {adminLinks.map((link) => {
+            {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
                 <li key={link.name} className="relative py-1">
@@ -86,24 +69,6 @@ const Navbar = () => {
               );
             })}
           </ul>
-
-          <div className="h-4 w-[1px] bg-slate-800"></div>
-
-          {user ? (
-            <button 
-              onClick={handleLogout}
-              className="text-slate-300 hover:text-white transition-colors duration-200 text-sm font-semibold cursor-pointer"
-            >
-              Logout
-            </button>
-          ) : (
-            <Link 
-              to="/login" 
-              className="text-slate-300 hover:text-white transition-colors duration-200 text-sm font-semibold"
-            >
-              Login
-            </Link>
-          )}
 
           <div className="h-4 w-[1px] bg-slate-800"></div>
 
@@ -137,7 +102,7 @@ const Navbar = () => {
       {mobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 w-full bg-slate-900 border-b border-slate-800 shadow-xl py-4 px-6 animate-in slide-in-from-top-5 duration-200">
           <ul className="flex flex-col gap-4 text-sm font-semibold text-slate-350">
-            {adminLinks.map((link) => (
+            {navLinks.map((link) => (
               <li key={link.name}>
                 <Link
                   to={link.path}
@@ -150,25 +115,6 @@ const Navbar = () => {
                 </Link>
               </li>
             ))}
-
-            <li className="pt-2 border-t border-slate-800">
-              {user ? (
-                <button 
-                  onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                  className="w-full text-slate-300 hover:text-white py-2 text-left text-sm font-semibold cursor-pointer"
-                >
-                  Logout ({user.firstName})
-                </button>
-              ) : (
-                <Link 
-                  to="/login" 
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-slate-300 hover:text-white py-2 text-sm font-semibold"
-                >
-                  Login / Sign Up
-                </Link>
-              )}
-            </li>
 
             <li className="pt-2 border-t border-slate-800">
               <Link to="/apply" onClick={() => setMobileMenuOpen(false)}>
