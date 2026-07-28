@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, Send, Globe } from "lucide-react";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -77,12 +77,14 @@ const Footer = () => {
       <div className="border-b border-slate-900 py-12">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
           <div className="space-y-2 text-left">
-            <div className="flex items-center gap-2">
-              <img 
-                src="/logo.jpg" 
-                alt="GlobalPath Logo" 
-                className="h-10 w-auto rounded-lg border border-slate-900 shadow-md"
-              />
+            <div className="flex items-center gap-2.5 text-white font-black text-xl tracking-tight group select-none">
+              <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-650 to-indigo-500 shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform duration-300">
+                <Globe className="w-5 h-5 text-white animate-pulse" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500"></span>
+              </div>
+              <span className="tracking-tight text-white">
+                Global<span className="text-indigo-400 font-medium">Path</span>
+              </span>
             </div>
             <p className="text-xs text-slate-500 max-w-sm">
               Premium document audits, embassy booking coordination, and fast-track processing support.
