@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, ArrowRight, Globe } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -39,14 +39,12 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-6 md:px-8">
         
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2.5 text-white font-black text-xl tracking-tight group select-none">
-          <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-650 to-indigo-500 shadow-md shadow-indigo-600/20 group-hover:scale-105 transition-transform duration-300">
-            <Globe className="w-5 h-5 text-white animate-pulse" />
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500"></span>
-          </div>
-          <span className="tracking-tight">
-            Global<span className="text-indigo-400 font-medium">Path</span>
-          </span>
+        <Link to="/" className="flex items-center gap-3 group">
+          <img 
+            src="/logo.png" 
+            alt="GlobalPath Logo" 
+            className="h-11 w-auto group-hover:scale-105 transition-transform duration-300"
+          />
         </Link>
 
         {/* Desktop Navigation */}
