@@ -43,7 +43,7 @@ const Navbar = () => {
           <img 
             src="/logo.png" 
             alt="GlobalPath Logo" 
-            className="h-11 w-auto group-hover:scale-105 transition-transform duration-300"
+            className="h-14 w-auto group-hover:scale-105 transition-transform duration-300"
           />
         </Link>
 
