@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { Search, Loader2, CheckCircle2, Clock, Landmark, Compass, ShieldAlert, Mail, Phone, Calendar } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { API_URL } from "../config";
 
 // Default Sample Application
 const sampleApplication = {
@@ -56,7 +57,7 @@ const Track = () => {
     }
 
     try {
-      const res = await axios.get(`http://localhost:8000/api/v1/inquiry/track/${id.trim()}`);
+      const res = await axios.get(`${API_URL}/api/v1/inquiry/track/${id.trim()}`);
       if (res.data.success) {
         setAppDetails(res.data.inquiry);
         setLoading(false);

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Compass, ShieldCheck, CheckCircle, ArrowRight, UserCheck, Star, Users, Award, X, Send, Phone, User, Mail } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { API_URL } from "../config";
 
 const countriesList = [
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria",
@@ -113,7 +114,7 @@ const Home = () => {
     localStorage.setItem("globalpath_visas", JSON.stringify(existingApps));
 
     try {
-      await axios.post("http://localhost:8000/api/v1/inquiry/create", inquiryPayload);
+      await axios.post(`${API_URL}/api/v1/inquiry/create`, inquiryPayload);
     } catch (err) {
       console.error("Failed to save inquiry to MongoDB:", err);
     }

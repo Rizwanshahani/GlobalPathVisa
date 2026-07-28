@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { Check, ArrowRight, ArrowLeft, Calendar, FileText, User, Plane, HelpCircle, CheckCircle, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { API_URL } from "../config";
 
 const Apply = () => {
   const [searchParams] = useSearchParams();
@@ -174,7 +175,7 @@ const Apply = () => {
     localStorage.setItem("globalpath_visas", JSON.stringify(existingApps));
 
     try {
-      const res = await axios.post("http://localhost:8000/api/v1/inquiry/create", inquiryPayload);
+      const res = await axios.post(`${API_URL}/api/v1/inquiry/create`, inquiryPayload);
       if (res.data.success && formData.appointmentDate) {
         const inqId = res.data.inquiry._id;
         const timeline = [
@@ -185,7 +186,7 @@ const Apply = () => {
           { status: "Passport Dispatched", description: "Decision made and passport in transit", date: "Pending", completed: false }
         ];
         
-        await axios.put(`http://localhost:8000/api/v1/inquiry/update/${inqId}`, {
+        await axios.put(`${API_URL}/api/v1/inquiry/update/${inqId}`, {
           appointmentDate: formData.appointmentDate,
           appointmentTime: formData.appointmentTime,
           status: "Appointment Booking",
