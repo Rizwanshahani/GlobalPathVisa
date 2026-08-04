@@ -1,9 +1,20 @@
 import mongoose from "mongoose";
 
-let isConnected = false;
-
 const connectDB = async () => {
-    if (isConnected) {
+    if (mongoose.connection.readyState === 1) {
+        return;
+    }
+
+    if (mongoose.connection.readyState === 2) {
+        // Wait for the ongoing connection to establish
+        await new Promise((resolve) => {
+            const interval = setInterval(() => {
+                if (mongoose.connection.readyState === 1) {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 100);
+        });
         return;
     }
 
@@ -13,8 +24,9 @@ const connectDB = async () => {
     }
 
     try {
-        const db = await mongoose.connect(process.env.MONGO_URI);
-        isConnected = db.connections[0].readyState === 1;
+        await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000 // Timeout after 5s instead of default 30s
+        });
         console.log('mongoDB connected successfully');
     } catch (error) {
         console.error("mongodb connection failed:", error);
