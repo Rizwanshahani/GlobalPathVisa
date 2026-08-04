@@ -1,4 +1,6 @@
 import Inquiry from "../models/inquiryModel.js";
+import mongoose from "mongoose";
+import connectDB from "../database/db.js";
 
 // 1. Create a new inquiry
 export const createInquiry = async (req, res) => {
@@ -105,6 +107,12 @@ export const exportInquiriesCSV = async (req, res) => {
             return res.status(401).send("Unauthorized: Invalid Secret Key");
         }
 
+        // Ensure database connection
+        await connectDB();
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).send("Database connection error: MONGO_URI is missing or database is not connected. Please verify your Vercel Environment Variables.");
+        }
+
         // Find inquiries created today
         const startOfDay = new Date();
         startOfDay.setHours(0, 0, 0, 0);
@@ -143,7 +151,7 @@ export const exportInquiriesCSV = async (req, res) => {
         return res.status(200).send(csvContent);
     } catch (error) {
         console.error("Export daily inquiries error:", error);
-        return res.status(550).send("Internal server error");
+        return res.status(500).send(`Internal server error: ${error.message}`);
     }
 };
 
@@ -153,6 +161,12 @@ export const exportAllInquiriesCSV = async (req, res) => {
         const { key } = req.query;
         if (key !== "GPAdminExcelSecret") {
             return res.status(401).send("Unauthorized: Invalid Secret Key");
+        }
+
+        // Ensure database connection
+        await connectDB();
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(500).send("Database connection error: MONGO_URI is missing or database is not connected. Please verify your Vercel Environment Variables.");
         }
 
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
@@ -184,6 +198,6 @@ export const exportAllInquiriesCSV = async (req, res) => {
         return res.status(200).send(csvContent);
     } catch (error) {
         console.error("Export all inquiries error:", error);
-        return res.status(550).send("Internal server error");
+        return res.status(500).send(`Internal server error: ${error.message}`);
     }
 };
