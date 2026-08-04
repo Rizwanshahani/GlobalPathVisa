@@ -110,7 +110,9 @@ export const exportInquiriesCSV = async (req, res) => {
         // Ensure database connection
         await connectDB();
         if (mongoose.connection.readyState !== 1) {
-            return res.status(500).send("Database connection error: MONGO_URI is missing or database is not connected. Please verify your Vercel Environment Variables.");
+            const hasUri = !!process.env.MONGO_URI;
+            const uriLen = process.env.MONGO_URI ? process.env.MONGO_URI.length : 0;
+            return res.status(500).send(`Database connection error. Mongoose ReadyState: ${mongoose.connection.readyState}. MONGO_URI exists: ${hasUri} (length: ${uriLen}). Ensure you whitelisted IP 0.0.0.0/0 (Access From Anywhere) in MongoDB Atlas Security Network Access.`);
         }
 
         // Find inquiries created today
@@ -166,7 +168,9 @@ export const exportAllInquiriesCSV = async (req, res) => {
         // Ensure database connection
         await connectDB();
         if (mongoose.connection.readyState !== 1) {
-            return res.status(500).send("Database connection error: MONGO_URI is missing or database is not connected. Please verify your Vercel Environment Variables.");
+            const hasUri = !!process.env.MONGO_URI;
+            const uriLen = process.env.MONGO_URI ? process.env.MONGO_URI.length : 0;
+            return res.status(500).send(`Database connection error. Mongoose ReadyState: ${mongoose.connection.readyState}. MONGO_URI exists: ${hasUri} (length: ${uriLen}). Ensure you whitelisted IP 0.0.0.0/0 (Access From Anywhere) in MongoDB Atlas Security Network Access.`);
         }
 
         const inquiries = await Inquiry.find().sort({ createdAt: -1 });
