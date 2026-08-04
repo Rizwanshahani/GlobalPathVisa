@@ -7,12 +7,15 @@ import orderRoutes from './routes/orderRoutes.js'
 import inquiryRoutes from './routes/inquiryRoutes.js'
 import cors from 'cors'
 
+// Connect to database immediately (for serverless environments)
+connectDB();
+
 const app = express()
-const PORT = process.env.PORT || 8000; // Fallback to 8000 matching env
+const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', 'https://global-path-visa.vercel.app'],
     credentials:true
 }))
 
@@ -25,7 +28,11 @@ app.get('/api/v1/healthcheck', (req, res) => {
     res.json({ success: true, message: 'Server is healthy and routes are loaded' });
 });
 
-app.listen(PORT,()=>{
-    connectDB()
-    console.log(`server is listening at port:${PORT}`);
-})
+// Start local listener only if not in Vercel serverless environment
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`server is listening at port:${PORT}`);
+    });
+}
+
+export default app;
