@@ -81,7 +81,7 @@ const Footer = () => {
               <img 
                 src="/logo.png" 
                 alt="GlobalPath Logo" 
-                className="h-20 w-auto"
+                className="h-28 w-auto"
               />
             </div>
             <p className="text-xs text-slate-500 max-w-sm">
